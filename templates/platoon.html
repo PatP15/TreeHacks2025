@@ -73,21 +73,44 @@
     height: 200px;
   }
 
-  /* Pulsing Dot */
-  #pulsing-dot {
+  /* PPG Graph Background */
+  #ppgChart {
+    background-color: black;
+  }
+
+  /* Pulsing Green Dot */
+  #green-dot {
     position: absolute;
     width: 14px;
     height: 14px;
-    background-color: red;
+    background-color: green;
     border-radius: 50%;
-    box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
-    animation: pulse 1.5s infinite;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+    animation: pulse-green 1.5s infinite;
     transform: translate(-50%, -50%);
   }
 
-  @keyframes pulse {
+  @keyframes pulse-green {
     0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
     50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.6; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  }
+
+  /* Pulsing Red Dots */
+  .red-dot {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background-color: red;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+    animation: pulse-red 1.5s infinite;
+    transform: translate(-50%, -50%);
+  }
+
+  @keyframes pulse-red {
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.5; }
     100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
   }
 </style>
@@ -98,8 +121,8 @@
   let ppgData = [];
   let ppgIndex = 0;
   let loopPpg = [];
-  const PPG_DISPLAY_SIZE = 150;  // Number of visible points
-  const PPG_UPDATE_RATE = 30;  // Update speed (~60-90 BPM)
+  const PPG_DISPLAY_SIZE = 150;
+  const PPG_UPDATE_RATE = 30;
 
   // Load PPG data from API
   async function loadPpgData() {
@@ -112,41 +135,38 @@
   function updatePpgChart(chart) {
     if (loopPpg.length === 0) return;
 
-    // Add new value & remove oldest value to create smooth scrolling
     ppgData.push(loopPpg[ppgIndex]);
     if (ppgData.length > PPG_DISPLAY_SIZE) {
-      ppgData.shift();  // Remove the oldest point
+      ppgData.shift();
     }
 
-    // Keep labels aligned
-    chart.data.labels.push("");  
+    chart.data.labels.push("");
     if (chart.data.labels.length > PPG_DISPLAY_SIZE) {
       chart.data.labels.shift();
     }
 
-    chart.data.datasets[0].data = [...ppgData];  // Update dataset
+    chart.data.datasets[0].data = [...ppgData];
     chart.update();
 
-    ppgIndex = (ppgIndex + 1) % loopPpg.length;  // Loop through PPG data
+    ppgIndex = (ppgIndex + 1) % loopPpg.length;
   }
 
   // Initialize PPG chart
   async function initPpgChart() {
     await loadPpgData();
-
     const ctx = document.getElementById('ppgChart').getContext('2d');
     const ppgChart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: Array(PPG_DISPLAY_SIZE).fill(""),
+        labels: [],
         datasets: [{
           label: "PPG Signal",
-          borderColor: "rgb(0, 255, 0)",  // Hospital-style green
+          borderColor: "rgb(0, 255, 0)",
           borderWidth: 2,
           backgroundColor: "rgba(0, 255, 0, 0.2)",
           data: [],
-          pointRadius: 0,  // No circles
-          tension: 0.2  // Smooth curve effect
+          pointRadius: 0,
+          tension: 0.2
         }]
       },
       options: {
@@ -154,12 +174,63 @@
         animation: false,
         scales: {
           y: { min: 0, max: 1, ticks: { stepSize: 0.2, color: "#00ff00" } },
-          x: { display: false }  // Hide X-axis labels for smooth effect
+          x: { display: false }
         }
       }
     });
 
+    document.getElementById('ppgChart').style.backgroundColor = "black";
     setInterval(() => updatePpgChart(ppgChart), PPG_UPDATE_RATE);
+  }
+
+  // Function to ensure dots exist
+  function ensureDotExists(dotId, color, size = 12) {
+    let dot = document.getElementById(dotId);
+    if (!dot) {
+      dot = document.createElement("div");
+      dot.id = dotId;
+      dot.className = "map-dot";
+      dot.style.position = "absolute";
+      dot.style.width = `${size}px`;
+      dot.style.height = `${size}px`;
+      dot.style.borderRadius = "50%";
+      dot.style.zIndex = "10";  // Ensure dots are on top
+      dot.style.backgroundColor = color;
+      dot.style.boxShadow = `0 0 10px ${color}`;
+      document.getElementById('map-container').appendChild(dot);
+    }
+    return dot;
+  }
+
+  // Fetch location updates for pulsing dots
+  function updateLocations() {
+    fetch("/location.json")
+      .then(resp => resp.json())
+      .then(data => {
+        const mapImage = document.getElementById('map-image');
+        if (!mapImage) return;
+
+        const mapRect = mapImage.getBoundingClientRect();
+
+        // Green dot update
+        const greenDot = ensureDotExists('green-dot', 'green', 14);
+        let greenX = mapRect.width * data.green.x;
+        let greenY = mapRect.height * data.green.y;
+        greenDot.style.left = `${greenX}px`;
+        greenDot.style.top = `${greenY}px`;
+
+        // Update red dots with random offsets
+        for (let i = 0; i < 5; i++) {
+          const redDot = ensureDotExists(`red-dot-${i}`, 'red');
+          let xOffset = (Math.random() - 0.5) * 0.05;
+          let yOffset = (Math.random() - 0.5) * 0.05;
+          let redX = mapRect.width * (data.red[i].x + xOffset);
+          let redY = mapRect.height * (data.red[i].y + yOffset);
+          redDot.style.left = `${redX}px`;
+          redDot.style.top = `${redY}px`;
+        }
+      })
+      .catch(err => console.log("Error fetching location:", err));
   }
 
   // Fetch caption from /get_caption
@@ -173,41 +244,20 @@
       .catch(err => console.log("Error fetching caption:", err));
   }
 
-  // Fetch location updates for pulsing dot
-  function updateLocation() {
-    fetch("/location.json")
-      .then(resp => resp.json())
-      .then(data => {
-        const dot = document.getElementById('pulsing-dot');
-        const mapImage = document.getElementById('map-image');
-
-        if (dot && mapImage) {
-          const mapRect = mapImage.getBoundingClientRect();
-          let x = mapRect.width * data.x;
-          let y = mapRect.height * data.y;
-          x = Math.max(5, Math.min(x, mapRect.width - 5));
-          y = Math.max(5, Math.min(y, mapRect.height - 5));
-
-          dot.style.left = `${x}px`;
-          dot.style.top = `${y}px`;
-        }
-      })
-      .catch(err => console.log("Error fetching location:", err));
-  }
-
-  // Unified update function (ensures all updates run together)
+  // Unified update function
   function updateDashboard() {
     fetchCaption();
-    updateLocation();
+    updateLocations();
   }
 
-  // Initialize everything
   document.addEventListener("DOMContentLoaded", function () {
     initPpgChart();
-    setInterval(updateDashboard, 4000);  // Runs captions & location updates every 4 seconds
+    setInterval(updateDashboard, 4000);
   });
 
 </script>
+
+
 
 
 

@@ -159,14 +159,17 @@ import random
 
 @app.route('/location.json')
 def location_json():
-    """
-    Returns a simulated user position in the form of percentages (0-1 range).
-    """
+    """ Returns the main (green) location and five red flashing dots around a home position. """
     return jsonify({
-        "x": round(random.uniform(0.1, 0.9), 2),  # Avoid going too close to edges
-        "y": round(random.uniform(0.1, 0.9), 2)
+        "green": { "x": round(random.uniform(0.3, 0.7), 2), "y": round(random.uniform(0.3, 0.7), 2) },
+        "red": [
+            {"x": 0.5, "y": 0.5},  # Center position
+            {"x": 0.48, "y": 0.52},
+            {"x": 0.52, "y": 0.48},
+            {"x": 0.47, "y": 0.53},
+            {"x": 0.53, "y": 0.47}
+        ]
     })
-
 import numpy as np
 from scipy.signal import find_peaks
 import pandas as pd
