@@ -11,7 +11,7 @@ load_dotenv()
 # Initialize the Scrapybara client
 client = Scrapybara(
     api_key=os.getenv("SCRAPYBARA_API_KEY"),
-    timeout=600,  # Set timeout to 600 seconds
+    timeout=6000,  # Set timeout to 600 seconds
 )
 
 # Start an Ubuntu instance
@@ -31,27 +31,32 @@ try:
 
     # Define the repository URL and the script to run
     repo_url = "https://github.com/PatP15/TreeHacks2025.git"
-    script_name = "app.py"
+    script_name = "app_demo.py"
 
     # Clone the GitHub repository
-    instance.bash(command=f"git clone {repo_url}")
+    output = instance.bash(command=f"git clone {repo_url}")
     print(f"Cloned repository: {repo_url}")
+    print(output)
 
     # Extract the repository name from the URL
     repo_name = repo_url.split('/')[-1].replace('.git', '')
 
     # Navigate to the repository directory and run the Python script
-    instance.bash(command=f"cd {repo_name} && python3 {script_name}")
+    output = instance.bash(command=f"cd {repo_name} && python3 {script_name}")
     print(f"Executed script: {script_name} in {repo_name}")
+    print(output)
 
     # Start the browser
-    instance.browser.start()
+    cdp_url = instance.browser.start().cdp_url
     print("Browser started.")
 
+    from playwright.sync_api import sync_playwright
     # Navigate to the locally hosted web application
-    instance.browser.navigate(url="http://localhost:8000")
-    print("Navigated to http://localhost:8000")
+    playwright = sync_playwright().start()
+    browser = playwright.chromium.connect_over_cdp(cdp_url)
 
+    page = browser.new_page()
+    page.goto("localhost:5001")
     # Define the prompt for the Anthropic model
     prompt = """
     You are an AI assistant tasked with interacting with the web application hosted at http://localhost:8000.
