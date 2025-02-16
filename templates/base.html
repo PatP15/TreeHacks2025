@@ -56,11 +56,8 @@
     #btn-platoon {
       background-color: #6cbf6c; /* A softer green */
     }
-    #btn-medical {
-      background-color: #81bce1; /* A softer blue */
-    }
     #btn-messages {
-      background-color: #b0b0b0; /* A softer gray */
+      background-color: #81bce1; /* A softer gray */
     }
 
     /* For main content area */
@@ -76,19 +73,14 @@
   <!-- ========== TOP NAV (BIG BUTTONS) ========== -->
   <div class="container-fluid p-3">
     <div class="row text-center g-2">
-      <div class="col-sm-4">
+      <div class="col-sm-6">
         <a href="{{ url_for('platoon') }}" id="btn-platoon" class="top-button">
-          Platoon
+          Dashboard
         </a>
       </div>
-      <div class="col-sm-4">
-        <a href="{{ url_for('medical') }}" id="btn-medical" class="top-button">
-          Medical
-        </a>
-      </div>
-      <div class="col-sm-4">
+      <div class="col-sm-6">
         <a href="{{ url_for('messages') }}" id="btn-messages" class="top-button">
-          Messages
+          Logs
         </a>
       </div>
     </div>

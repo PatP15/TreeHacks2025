@@ -1,25 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="main-section" style="background-color: #ededed;">
+<div class="main-section" style="background-color: #81bce1;">  <!-- Changed to BLUE -->
   <div class="container-fluid py-3">
-    <h2 class="mb-3">Messages</h2>
+    <h2 class="mb-3">Capy Guardian Logs</h2>
     <div class="card">
       <div class="card-body">
-        <div
-          id="chat-display"
-          class="border p-2 mb-3"
-          style="height: 200px; overflow-y:auto; background:#fff;"
-        ></div>
+        <div id="chat-display" class="border p-2 mb-3" style="height: 200px; overflow-y:auto; background:#fff;"></div>
         <form id="chat-form" onsubmit="return false;">
           <div class="mb-3">
-            <label for="userMessage" class="form-label">Your message:</label>
-            <input
-              type="text"
-              class="form-control"
-              id="userMessage"
-              placeholder="Type something..."
-            />
+            <label for="userMessage" class="form-label">Logs:</label>
+            <input type="text" class="form-control" id="userMessage" placeholder="Type something..." />
           </div>
           <button id="sendBtn" class="btn btn-secondary">Send</button>
         </form>
@@ -32,7 +23,6 @@
 
 {% block scripts %}
 <script>
-  // Simple chat logic
   const chatForm = document.getElementById('chat-form');
   const chatDisplay = document.getElementById('chat-display');
 
@@ -48,7 +38,7 @@
     })
     .then(resp => resp.json())
     .then(data => {
-      appendChatMessage('Bot', data.response);
+      appendChatMessage('Server', data.response);
     })
     .catch(err => console.error('Chat error:', err));
 

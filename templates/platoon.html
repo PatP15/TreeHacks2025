@@ -4,85 +4,116 @@
 
 <div class="main-section" style="background-color: #e3f2e3;">
   <div class="container-fluid py-3">
-    <h2 class="mb-3">Platoon Overview</h2>
+    <h2 class="mb-3">User Overview</h2>
     <div class="row mb-4">
-      <!-- Left: MAP STREAMING -->
+      <!-- Left: RealTime Kin -->
       <div class="col-md-6">
         <div class="card h-100">
-          <div class="card-header">Map Streaming</div>
+          <div class="card-header">RealTime Kin</div>
           <div class="card-body text-center">
-            <h5>Placeholder for Map Streaming</h5>
+            <p>Placeholder for Kin streaming feed</p>
           </div>
         </div>
       </div>
-      <!-- Right: KINEMATIC (top) + VLM (bottom) -->
+      
+      <!-- Right: MAP STREAMING (with pulsing dot) -->
       <div class="col-md-6">
-        <div class="row g-3">
-          <!-- KINEMATIC FEED -->
-          <div class="col-12">
-            <div class="card">
-              <div class="card-header">Kinematic</div>
-              <div class="card-body text-center">
-                <p>Placeholder for Kinematic feed</p>
-              </div>
-            </div>
+        <div class="card h-100">
+          <div class="card-header">Map Streaming</div>
+          <div class="card-body position-relative" style="text-align: center;">
+            <!-- Load PNG map -->
+            <img id="map-image" src="{{ url_for('static', filename='map.png') }}" class="img-fluid" style="max-width: 100%;" />
+
+            <!-- Pulsing dot (will be positioned dynamically) -->
+            <div id="pulsing-dot"></div>
           </div>
-          <!-- VLM CAMERA + CAPTION (macro) -->
-          <div class="col-12">
-            <div class="card">
-              <div class="card-header">VLM Camera + Caption</div>
-              <div class="card-body">
-                {{ macros.camera_and_caption(width="100%", max_height="250px", caption_id="captionPlatoon") }}
-              </div>
-            </div>
-          </div>
-        </div><!-- end .row -->
-      </div><!-- end .col-md-6 -->
+        </div>
+      </div>
     </div><!-- end .row -->
 
-    <!-- Bottom Row: Health Stats + Alert (macro with prefix=platoon) -->
-    {{ macros.health_stats_block(prefix="platoon") }}
+    <!-- VLM CAMERA + CAPTION (macro) -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">VLM Camera + Caption</div>
+          <div class="card-body">
+            {{ macros.camera_and_caption(width="100%", max_height="250px", caption_id="captionPlatoon") }}
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div><!-- end .container-fluid -->
 </div><!-- end .main-section -->
 
 {% endblock %}
 
 {% block scripts %}
+<style>
+  /* Pulsing dot for location tracking */
+  #pulsing-dot {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: red;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+    animation: pulse 1.5s infinite;
+    transform: translate(-50%, -50%); /* Centering */
+  }
+
+  @keyframes pulse {
+    0% {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(1.3);
+      opacity: 0.6;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+  }
+</style>
+
 <script>
-  // PLATOON PAGE POLLING
+  // Function to fetch caption from /get_caption
   function fetchCaption() {
     fetch("/get_caption")
       .then(resp => resp.json())
       .then(data => {
         const captionElem = document.getElementById('captionPlatoon');
-        if(captionElem) captionElem.innerText = data.caption;
+        if (captionElem) captionElem.innerText = data.caption;
       })
       .catch(err => console.log("Error fetching caption:", err));
   }
 
-  function fetchHealthStats() {
-    fetch("/get_health_stats")
+  // Function to update pulsing dot position
+  function updateLocation() {
+    fetch("/location.json")
       .then(resp => resp.json())
       .then(data => {
-        document.getElementById('platoonHrValue').innerText = data.heart_rate;
-        document.getElementById('platoonStepsValue').innerText = data.steps;
-        document.getElementById('platoonRingsValue').innerText = data.activity_rings;
+        const dot = document.getElementById('pulsing-dot');
+        const mapImage = document.getElementById('map-image');
+
+        if (dot && mapImage) {
+          // Convert percentages into pixel positions
+          const mapRect = mapImage.getBoundingClientRect();
+          const x = mapRect.left + mapRect.width * data.x;
+          const y = mapRect.top + mapRect.height * data.y;
+          dot.style.left = `${x}px`;
+          dot.style.top = `${y}px`;
+        }
       })
-      .catch(err => console.log("Error fetching stats:", err));
+      .catch(err => console.log("Error fetching location:", err));
   }
 
-  // Start polling
+  // Polling intervals
   setInterval(() => {
     fetchCaption();
-    fetchHealthStats();
+    updateLocation();
   }, 4000);
-
-  // Alert bell
-  const alertBell = document.getElementById('platoonAlertBell');
-  if(alertBell){
-    alertBell.addEventListener('click', () => {
-      alert('Platoon page alert triggered!');
-    });
-  }
 </script>
 {% endblock %}

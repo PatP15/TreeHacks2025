@@ -11,54 +11,16 @@
 </div>
 {% endmacro %}
 
-{% macro health_stats_block(prefix="") %}
+{% macro ecg_graph_block(prefix="") %}
 <div class="row">
-  <!-- Health Stats box -->
-  <div class="col-md-2 mb-3">
+  <!-- ECG Graph -->
+  <div class="col-md-12 mb-3">
     <div class="card">
-      <div class="card-header text-center">Health Stats</div>
-      <div class="card-body text-center">
-        <p>Extra details if needed</p>
-      </div>
-    </div>
-  </div>
-  <!-- Heart Rate -->
-  <div class="col-md-2 mb-3">
-    <div class="card text-center">
-      <div class="card-header">Heart Rate</div>
+      <div class="card-header text-center">Live ECG</div>
       <div class="card-body">
-        <span id="{{ prefix }}HrValue">--</span> BPM
+        <canvas id="{{ prefix }}EcgCanvas"></canvas>
       </div>
     </div>
-  </div>
-  <!-- Steps -->
-  <div class="col-md-2 mb-3">
-    <div class="card text-center">
-      <div class="card-header">Steps</div>
-      <div class="card-body">
-        <span id="{{ prefix }}StepsValue">--</span>
-      </div>
-    </div>
-  </div>
-  <!-- Activity Rings -->
-  <div class="col-md-2 mb-3">
-    <div class="card text-center">
-      <div class="card-header">Activity Rings</div>
-      <div class="card-body">
-        <span id="{{ prefix }}RingsValue">--</span>%
-      </div>
-    </div>
-  </div>
-  <!-- Alert Bell -->
-  <div class="col-md-2 mb-3 d-flex align-items-center justify-content-center">
-    <i
-      class="fa fa-bell"
-      style="font-size:2rem; color:#dc3545; cursor:pointer;"
-      id="{{ prefix }}AlertBell"
-      aria-hidden="true"
-    ></i>
-    <p class="ms-2 mb-0">Alert</p>
   </div>
 </div>
 {% endmacro %}
-
