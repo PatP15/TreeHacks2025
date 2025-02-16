@@ -90,12 +90,13 @@ while(script_live):
 
     # Initialize simulation
     quatTable = osim.TimeSeriesTableQuaternion(sto_filename)
+    orientationsData = osim.OpenSenseUtilities.convertQuaternionsToRotations(quatTable)
+    oRefs = osim.BufferedOrientationsReference()
+
     init_state = model.initSystem()
     mRefs = osim.MarkersReference()
     coordinateReferences = osim.SimTKArrayCoordinateReference()
     # new version
-    orientationsData = osim.OpenSenseUtilities.convertQuaternionsToRotations(quatTable)
-    oRefs = osim.BufferedOrientationsReference()
 
     # Initialize with something (e.g. time=0, first row):
     rowVecView = orientationsData.getNearestRow(0)
@@ -106,9 +107,10 @@ while(script_live):
     if visualize:
         model.setUseVisualizer(True)
     model.initSystem()
-    ikSolver = osim.InverseKinematicsSolver(model, mRefs, oRefs, coordinateReferences, constraint_var)
     s0 = init_state
-    ikSolver.setAccuracy = accuracy
+    ikSolver = osim.InverseKinematicsSolver(model, mRefs, oRefs, coordinateReferences, constraint_var)
+    
+    ikSolver.setAccuracy(accuracy)
     s0.setTime(0.)
     ikSolver.assemble(s0)
     if visualize: # initialize visualization

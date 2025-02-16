@@ -19,10 +19,17 @@ app = Flask(__name__)
 # 2) VIDEO STREAMING SETUP (Using Video Files)
 ##########################################
 video_camera_path = "demo_vids/camera.mp4"
-video_realtimekin_path = "demo_vids/camera.mp4"
+video_realtimekin_path = "demo_vids/kin.mov"
 
 cap_camera = cv2.VideoCapture(video_camera_path)
 cap_realtimekin = cv2.VideoCapture(video_realtimekin_path)
+fps_kin = cap_realtimekin.get(cv2.CAP_PROP_FPS)
+skip_frames_kin = int(4 * fps_kin)
+cap_realtimekin.set(cv2.CAP_PROP_POS_FRAMES, skip_frames_kin)
+
+total_frames_kin = int(cap_realtimekin.get(cv2.CAP_PROP_FRAME_COUNT))
+end_frame_kin = total_frames_kin - int(4 * fps_kin)
+
 
 def gen_frames(cap):
     fps = cap.get(cv2.CAP_PROP_FPS)

@@ -9,12 +9,11 @@
       
       <!-- LEFT COLUMN: RealTime Kin + PPG Heartbeat -->
       <div class="col-md-6 d-flex flex-column">
-        
-        <!-- RealTime Kin -->
-        <div class="card flex-grow-1">
-          <div class="card-header">RealTime Kin</div>
-          <div class="card-body text-center">
-            <img id="realtimekin-video" src="{{ url_for('realtimekin_feed') }}" class="img-fluid" alt="RealTime Kin Feed">
+         <!-- VLM CAMERA + CAPTION -->
+         <div class="card">
+          <div class="card-header">Camera</div>
+          <div class="card-body">
+            {{ macros.camera_and_caption(width="100%", max_height="250px", caption_id="captionPlatoon") }}
           </div>
         </div>
 
@@ -36,13 +35,13 @@
       <!-- RIGHT COLUMN: VLM + Map -->
       <div class="col-md-6 d-flex flex-column">
         
-        <!-- VLM CAMERA + CAPTION -->
-        <div class="card">
-          <div class="card-header">VLM Camera + Caption</div>
-          <div class="card-body">
-            {{ macros.camera_and_caption(width="100%", max_height="250px", caption_id="captionPlatoon") }}
-          </div>
+       <!-- RealTime Kin -->
+       <div class="card flex-grow-1">
+        <div class="card-header">RealTime Kin</div>
+        <div class="card-body text-center">
+          <img id="realtimekin-video" src="{{ url_for('realtimekin_feed') }}" class="img-fluid" alt="RealTime Kin Feed">
         </div>
+      </div>
 
         <!-- MAP STREAMING -->
         <div class="card mt-3">

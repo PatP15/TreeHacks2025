@@ -83,6 +83,9 @@ try:
     - Has a text input field for logging messages
     - Includes a "Send" button for submitting log entries
 
+    Also you may need to make the website full screen to see all the sections.
+    You will have to scroll around the website to view all the sections and gather the necessary information!
+
     Please proceed step by step, describing your actions and observations. Once you have gathered all the necessary information, provide a summary of the person's health status
     by submitting a write-up to the user through the "Send" button in the Logs section.
     Also determine if the person would require any immediate assistance or medical attention.
@@ -93,8 +96,9 @@ try:
 
     Do not ask for any additional information from the user. Use only the information available on the website.
 
-    Do not close the page or the browser. You can interact with the website as needed.
-    """
+    Once you submit the logs leave the browser open.
+
+    Open a text editor and write a summary of the person's health status based on the information you have gathered.    """
 
     # Use the Anthropic model to interact with the website
     response = client.act(
@@ -108,6 +112,7 @@ try:
     # Output the final response from the model
     print("\nFinal response from the model:")
     print(response.output)
+
 
 finally:
     print("Stopping the instance...")
