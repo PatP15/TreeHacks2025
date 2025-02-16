@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Multi-Section Layout</title>
+
+  <!-- Bootstrap 5 -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+  />
+  
+  <!-- Google Font: Open Sans -->
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap"
+  />
+  
+  <!-- Optional: Font Awesome for icons -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
+  />
+
+  <style>
+    /* GLOBAL STYLES */
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background-color: #f8f9fa; /* Light gray behind everything */
+    }
+    h2, h3 {
+      font-weight: 600; /* Slightly bolder headings */
+    }
+    
+    /* TOP BUTTONS (Large, More Professional Look) */
+    .top-button {
+      width: 100%;
+      padding: 1.25rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: none;
+      margin: 0.4rem 0;
+      color: #fff; /* White text for contrast */
+      border-radius: 0.5rem; /* Rounded corners */
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); /* Subtle shadow */
+      transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+    .top-button:hover {
+      transform: translateY(-1px); /* Slight "lift" on hover */
+      filter: brightness(1.05);    /* Slightly brighten color */
+    }
+
+    #btn-platoon {
+      background-color: #6cbf6c; /* A softer green */
+    }
+    #btn-medical {
+      background-color: #81bce1; /* A softer blue */
+    }
+    #btn-messages {
+      background-color: #b0b0b0; /* A softer gray */
+    }
+
+    /* TAB SECTIONS: use slightly lighter backgrounds */
+    .tab-section {
+      display: none;
+      min-height: 75vh;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 0.5rem;
+    }
+    #platoonSection {
+      background-color: #e3f2e3; /* light greenish background */
+    }
+    #medicalSection {
+      background-color: #e6f0fa; /* very light blue background */
+    }
+    #messagesSection {
+      background-color: #ededed; /* light gray background */
+    }
+
+    /* CARDS: Slightly more spacing, subtle corners */
+    .card {
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .card-header {
+      font-weight: 600;
+    }
+    .card-body {
+      padding: 1rem;
+    }
+    
+    /* FOOTER-LIKE SPACER (optional) */
+    .bottom-spacer {
+      height: 2rem;
+    }
+  </style>
+</head>
+<body class="d-flex flex-column" style="min-height: 100vh;">
+  <!-- ========== TOP BUTTONS ========== -->
+  <div class="container-fluid p-3">
+    <div class="row text-center g-2">
+      <div class="col-sm-4">
+        <button id="btn-platoon" class="top-button" onclick="showSection('platoonSection')">
+          Platoon
+        </button>
+      </div>
+      <div class="col-sm-4">
+        <button id="btn-medical" class="top-button" onclick="showSection('medicalSection')">
+          Medical
+        </button>
+      </div>
+      <div class="col-sm-4">
+        <button id="btn-messages" class="top-button" onclick="showSection('messagesSection')">
+          Messages
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MAIN CONTENT AREA ========== -->
+  <div class="container-fluid flex-grow-1">
+
+    <!-- (1) PLATOON SECTION -->
+    <div id="platoonSection" class="tab-section">
+      <div class="container-fluid py-3">
+        <h2 class="mb-3">Platoon Overview</h2>
+        <div class="row mb-4">
+          <!-- Left: MAP STREAMING -->
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header">Map Streaming</div>
+              <div class="card-body text-center">
+                <h5>Placeholder for Map Streaming</h5>
+              </div>
+            </div>
+          </div>
+          <!-- Right: KINEMATIC (top) + VLM (bottom) -->
+          <div class="col-md-6">
+            <div class="row g-3">
+              <!-- KINEMATIC FEED -->
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header">Kinematic</div>
+                  <div class="card-body text-center">
+                    <p>Placeholder for Kinematic feed</p>
+                  </div>
+                </div>
+              </div>
+              <!-- VLM CAMERA + CAPTION -->
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-header">VLM Camera</div>
+                  <div class="card-body text-center">
+                    <p>Placeholder for VLM feed or captioning</p>
+                  </div>
+                </div>
+              </div>
+            </div><!-- end .row -->
+          </div><!-- end .col-md-6 -->
+        </div><!-- end .row -->
+
+        <!-- Bottom Row: Health Stats + Alert -->
+        <div class="row">
+          <!-- Health Stats box -->
+          <div class="col-md-2 mb-3">
+            <div class="card">
+              <div class="card-header text-center">Health Stats</div>
+              <div class="card-body text-center">
+                <p>Extra details if needed</p>
+              </div>
+            </div>
+          </div>
+          <!-- Heart Rate -->
+          <div class="col-md-2 mb-3">
+            <div class="card text-center">
+              <div class="card-header">Heart Rate</div>
+              <div class="card-body">
+                <span id="hrValue">--</span> BPM
+              </div>
+            </div>
+          </div>
+          <!-- Steps -->
+          <div class="col-md-2 mb-3">
+            <div class="card text-center">
+              <div class="card-header">Steps</div>
+              <div class="card-body">
+                <span id="stepsValue">--</span>
+              </div>
+            </div>
+          </div>
+          <!-- Activity Rings -->
+          <div class="col-md-2 mb-3">
+            <div class="card text-center">
+              <div class="card-header">Activity Rings</div>
+              <div class="card-body">
+                <span id="ringsValue">--</span>%
+              </div>
+            </div>
+          </div>
+          <!-- Alert Bell -->
+          <div class="col-md-2 mb-3 d-flex align-items-center justify-content-center">
+            <i
+              class="fa fa-bell"
+              style="font-size:2rem; color:#dc3545; cursor:pointer;"
+              id="alertBell"
+              aria-hidden="true"
+            ></i>
+            <p class="ms-2 mb-0">Alert</p>
+          </div>
+        </div><!-- end bottom row -->
+      </div><!-- end .container-fluid -->
+    </div><!-- end #platoonSection -->
+
+    <!-- (2) MEDICAL SECTION -->
+    <div id="medicalSection" class="tab-section">
+      <div class="container-fluid py-3">
+        <h2 class="mb-3">Medical Dashboard</h2>
+        <div class="row mb-3">
+          <!-- RealTime Kin -->
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header">RealTime Kin</div>
+              <div class="card-body d-flex justify-content-center align-items-center">
+                <p>Placeholder for Kin streaming feed</p>
+              </div>
+            </div>
+          </div>
+          <!-- VLM Camera + Captioning -->
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header">VLM Camera + Captioning</div>
+              <div class="card-body">
+                <div class="mb-3 text-center">
+                  <img
+                    id="cameraFeed"
+                    src="/video_feed"
+                    alt="Camera Feed"
+                    style="max-width: 100%; max-height: 300px;"
+                  />
+                </div>
+                <div class="border rounded p-2" id="captionBox">
+                  Loading caption...
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!-- end row -->
+
+        <!-- Bottom Row: Health Stats row (same as Platoon) -->
+        <div class="row">
+          <!-- Health Stats box -->
+          <div class="col-md-2 mb-3">
+            <div class="card">
+              <div class="card-header text-center">Health Stats</div>
+              <div class="card-body text-center">
+                <p>Extra details if needed</p>
+              </div>
+            </div>
+          </div>
+          <!-- Heart Rate -->
+          <div class="col-md-2 mb-3">
+            <div class="card text-center">
+              <div class="card-header">Heart Rate</div>
+              <div class="card-body">
+                <span id="hrValue2">--</span> BPM
+              </div>
+            </div>
+          </div>
+          <!-- Steps -->
+          <div class="col-md-2 mb-3">
+            <div class="card text-center">
+              <div class="card-header">Steps</div>
+              <div class="card-body">
+                <span id="stepsValue2">--</span>
+              </div>
+            </div>
+          </div>
+          <!-- Activity Rings -->
+          <div class="col-md-2 mb-3">
+            <div class="card text-center">
+              <div class="card-header">Activity Rings</div>
+              <div class="card-body">
+                <span id="ringsValue2">--</span>%
+              </div>
+            </div>
+          </div>
+          <!-- Alert Bell -->
+          <div class="col-md-2 mb-3 d-flex align-items-center justify-content-center">
+            <i
+              class="fa fa-bell"
+              style="font-size:2rem; color:#dc3545; cursor:pointer;"
+              id="alertBell2"
+              aria-hidden="true"
+            ></i>
+            <p class="ms-2 mb-0">Alert</p>
+          </div>
+        </div>
+      </div><!-- end .container-fluid -->
+    </div><!-- end #medicalSection -->
+
+    <!-- (3) MESSAGES SECTION -->
+    <div id="messagesSection" class="tab-section">
+      <div class="container-fluid py-3">
+        <h2 class="mb-3">Messages</h2>
+        <div class="card">
+          <div class="card-body">
+            <div
+              id="chat-display"
+              class="border p-2 mb-3"
+              style="height: 200px; overflow-y:auto; background:#fff;"
+            ></div>
+            <form id="chat-form" onsubmit="return false;">
+              <div class="mb-3">
+                <label for="userMessage" class="form-label">Your message:</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="userMessage"
+                  placeholder="Type something..."
+                />
+              </div>
+              <button id="sendBtn" class="btn btn-secondary">Send</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div><!-- end #messagesSection -->
+    
+  </div><!-- end .container-fluid (main content) -->
+
+  <!-- Optional bottom spacer -->
+  <div class="bottom-spacer"></div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // ===== SHOW/HIDE SECTIONS =====
+    function showSection(sectionId) {
+      const sections = document.getElementsByClassName('tab-section');
+      for(let i = 0; i < sections.length; i++){
+        sections[i].style.display = 'none';
+      }
+      document.getElementById(sectionId).style.display = 'block';
+    }
+
+    // By default, show the Platoon section
+    window.onload = () => {
+      showSection('platoonSection');
+      pollData();
+    };
+
+    // ===== POLL FOR CAPTION & HEALTH STATS =====
+    function fetchCaption() {
+      fetch('/get_caption')
+        .then(resp => resp.json())
+        .then(data => {
+          const captionBox = document.getElementById('captionBox');
+          if(captionBox) captionBox.innerText = data.caption;
+        })
+        .catch(err => console.log('Error fetching caption:', err));
+    }
+
+    function fetchHealthStats() {
+      fetch('/get_health_stats')
+        .then(resp => resp.json())
+        .then(data => {
+          // Platoon page
+          document.getElementById('hrValue').innerText = data.heart_rate;
+          document.getElementById('stepsValue').innerText = data.steps;
+          document.getElementById('ringsValue').innerText = data.activity_rings;
+          // Medical page
+          document.getElementById('hrValue2').innerText = data.heart_rate;
+          document.getElementById('stepsValue2').innerText = data.steps;
+          document.getElementById('ringsValue2').innerText = data.activity_rings;
+        })
+        .catch(err => console.log('Error fetching stats:', err));
+    }
+
+    function pollData() {
+      setInterval(() => {
+        fetchCaption();
+        fetchHealthStats();
+      }, 4000);
+    }
+
+    // ===== CHAT LOGIC =====
+    const chatForm = document.getElementById('chat-form');
+    const chatDisplay = document.getElementById('chat-display');
+    if(chatForm){
+      chatForm.addEventListener('submit', () => {
+        const userInput = document.getElementById('userMessage').value.trim();
+        if(!userInput) return;
+        appendChatMessage('You', userInput);
+        fetch('/chatbot', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({message: userInput})
+        })
+        .then(resp => resp.json())
+        .then(data => {
+          appendChatMessage('Bot', data.response);
+        })
+        .catch(err => console.error('Chat error:', err));
+        document.getElementById('userMessage').value = '';
+      });
+    }
+
+    function appendChatMessage(sender, text) {
+      const msgEl = document.createElement('div');
+      msgEl.innerHTML = `<strong>${sender}:</strong> ${text}`;
+      chatDisplay.appendChild(msgEl);
+      chatDisplay.scrollTop = chatDisplay.scrollHeight;
+    }
+
+    // ===== ALERT BELLS =====
+    const alertBell = document.getElementById('alertBell');
+    if(alertBell){
+      alertBell.addEventListener('click', () => {
+        alert('Platoon page alert triggered!');
+      });
+    }
+    const alertBell2 = document.getElementById('alertBell2');
+    if(alertBell2){
+      alertBell2.addEventListener('click', () => {
+        alert('Medical page alert triggered!');
+      });
+    }
+  </script>
+</body>
+</html>

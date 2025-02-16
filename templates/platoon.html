@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+{% block content %}
+
+<div class="main-section" style="background-color: #e3f2e3;">
+  <div class="container-fluid py-3">
+    <h2 class="mb-3">Platoon Overview</h2>
+    <div class="row mb-4">
+      <!-- Left: MAP STREAMING -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header">Map Streaming</div>
+          <div class="card-body text-center">
+            <h5>Placeholder for Map Streaming</h5>
+          </div>
+        </div>
+      </div>
+      <!-- Right: KINEMATIC (top) + VLM (bottom) -->
+      <div class="col-md-6">
+        <div class="row g-3">
+          <!-- KINEMATIC FEED -->
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">Kinematic</div>
+              <div class="card-body text-center">
+                <p>Placeholder for Kinematic feed</p>
+              </div>
+            </div>
+          </div>
+          <!-- VLM CAMERA + CAPTION (macro) -->
+          <div class="col-12">
+            <div class="card">
+              <div class="card-header">VLM Camera + Caption</div>
+              <div class="card-body">
+                {{ macros.camera_and_caption(width="100%", max_height="250px", caption_id="captionPlatoon") }}
+              </div>
+            </div>
+          </div>
+        </div><!-- end .row -->
+      </div><!-- end .col-md-6 -->
+    </div><!-- end .row -->
+
+    <!-- Bottom Row: Health Stats + Alert (macro with prefix=platoon) -->
+    {{ macros.health_stats_block(prefix="platoon") }}
+  </div><!-- end .container-fluid -->
+</div><!-- end .main-section -->
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // PLATOON PAGE POLLING
+  function fetchCaption() {
+    fetch("/get_caption")
+      .then(resp => resp.json())
+      .then(data => {
+        const captionElem = document.getElementById('captionPlatoon');
+        if(captionElem) captionElem.innerText = data.caption;
+      })
+      .catch(err => console.log("Error fetching caption:", err));
+  }
+
+  function fetchHealthStats() {
+    fetch("/get_health_stats")
+      .then(resp => resp.json())
+      .then(data => {
+        document.getElementById('platoonHrValue').innerText = data.heart_rate;
+        document.getElementById('platoonStepsValue').innerText = data.steps;
+        document.getElementById('platoonRingsValue').innerText = data.activity_rings;
+      })
+      .catch(err => console.log("Error fetching stats:", err));
+  }
+
+  // Start polling
+  setInterval(() => {
+    fetchCaption();
+    fetchHealthStats();
+  }, 4000);
+
+  // Alert bell
+  const alertBell = document.getElementById('platoonAlertBell');
+  if(alertBell){
+    alertBell.addEventListener('click', () => {
+      alert('Platoon page alert triggered!');
+    });
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+{% block content %}
+
+<div class="main-section" style="background-color: #e6f0fa;">
+  <div class="container-fluid py-3">
+    <h2 class="mb-3">Medical Dashboard</h2>
+    <div class="row mb-3">
+      <!-- RealTime Kin -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header">RealTime Kin</div>
+          <div class="card-body d-flex justify-content-center align-items-center">
+            <p>Placeholder for Kin streaming feed</p>
+          </div>
+        </div>
+      </div>
+      <!-- VLM Camera + Captioning -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header">VLM Camera + Captioning</div>
+          <div class="card-body">
+            {{ macros.camera_and_caption(width="80%", max_height="300px", caption_id="captionMedical") }}
+          </div>
+        </div>
+      </div>
+    </div><!-- end row -->
+
+    <!-- Bottom Row: Health Stats (macro with prefix=medical) -->
+    {{ macros.health_stats_block(prefix="medical") }}
+  </div><!-- end .container-fluid -->
+</div><!-- end .main-section -->
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  function fetchCaption() {
+    fetch("/get_caption")
+      .then(resp => resp.json())
+      .then(data => {
+        document.getElementById('captionMedical').innerText = data.caption;
+      })
+      .catch(err => console.log("Error fetching caption:", err));
+  }
+
+  function fetchHealthStats() {
+    fetch("/get_health_stats")
+      .then(resp => resp.json())
+      .then(data => {
+        document.getElementById('medicalHrValue').innerText = data.heart_rate;
+        document.getElementById('medicalStepsValue').innerText = data.steps;
+        document.getElementById('medicalRingsValue').innerText = data.activity_rings;
+      })
+      .catch(err => console.log("Error fetching stats:", err));
+  }
+
+  setInterval(() => {
+    fetchCaption();
+    fetchHealthStats();
+  }, 4000);
+
+  const alertBell2 = document.getElementById('medicalAlertBell');
+  if(alertBell2){
+    alertBell2.addEventListener('click', () => {
+      alert('Medical page alert triggered!');
+    });
+  }
+</script>
+{% endblock %}
