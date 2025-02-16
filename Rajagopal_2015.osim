@@ -47,7 +47,7 @@
 							<!--Translational offset (in meters) of this frame's origin from the parent frame's origin, expressed in the parent frame.-->
 							<translation>-0.070699999999999999 0 0</translation>
 							<!--Orientation offset (in radians) of this frame in its parent frame, expressed as a frame-fixed x-y-z rotation sequence.-->
-							<orientation>-0.12352512231535395 0.382788811687367 -1.5604691689070613</orientation>
+							<orientation>0.0031224878401758176 1.047140752136221 -1.4273523058046711</orientation>
 						</PhysicalOffsetFrame>
 					</components>
 					<!--The geometry used to display the axes of this Frame.-->
@@ -1744,7 +1744,7 @@
 							<!--Translational offset (in meters) of this frame's origin from the parent frame's origin, expressed in the parent frame.-->
 							<translation>-0.029999999999999999 0.32000000000000001 0</translation>
 							<!--Orientation offset (in radians) of this frame in its parent frame, expressed as a frame-fixed x-y-z rotation sequence.-->
-							<orientation>-0.89557180858451013 0.62447044995532797 -1.4904852637869503</orientation>
+							<orientation>-1.0563057453350462 -0.73425567906862876 -0.94542795880816166</orientation>
 						</PhysicalOffsetFrame>
 					</components>
 					<!--The geometry used to display the axes of this Frame.-->
