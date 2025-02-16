@@ -60,6 +60,10 @@
       background-color: #81bce1; /* A softer gray */
     }
 
+    #alertButton {
+      background-color: #e74c3c; /* A softer red */
+    }
+
     /* For main content area */
     .main-section {
       min-height: 75vh;
@@ -83,6 +87,7 @@
           Logs
         </a>
       </div>
+      
     </div>
   </div>
 
@@ -97,5 +102,11 @@
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   {% block scripts %}{% endblock %}
+
+  <div class="col-sm-4">
+    <button id="alertButton" class="top-button alert-button">
+      🚨 Trigger Alert
+    </button>
+  </div>
 </body>
 </html>

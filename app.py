@@ -161,13 +161,13 @@ import random
 def location_json():
     """ Returns the main (green) location and five red flashing dots around a home position. """
     return jsonify({
-        "green": { "x": round(random.uniform(0.3, 0.7), 2), "y": round(random.uniform(0.3, 0.7), 2) },
+        "green": { "x": 0.7, "y": 0.6 },
         "red": [
-            {"x": 0.5, "y": 0.5},  # Center position
-            {"x": 0.48, "y": 0.52},
-            {"x": 0.52, "y": 0.48},
-            {"x": 0.47, "y": 0.53},
-            {"x": 0.53, "y": 0.47}
+            {"x": 0.7, "y": 0.8},  # Center position
+            {"x": 0.8, "y": 0.7},
+            {"x": 0.3, "y": 0.2},
+            {"x": 0.21, "y": 0.3},
+            {"x": 0.4, "y": 0.21}
         ]
     })
 import numpy as np
