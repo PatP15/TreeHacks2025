@@ -24,3 +24,6 @@ if ls /dev/gpiochip* >/dev/null 2>&1; then
 else
   echo "Warning: No /dev/gpiochip* devices found. Are you sure you're on a Jetson or have GPIO enabled?"
 fi
+
+sudo chmod 777 /dev/video0
+

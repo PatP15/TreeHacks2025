@@ -20,7 +20,6 @@ app = Flask(__name__)
 # 3) CAMERA SETUP
 ##########################################
 cap = cv2.VideoCapture(0)
-
 if not cap.isOpened():
     print("Error: Cannot open camera.")
     exit(1)
