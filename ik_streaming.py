@@ -159,7 +159,7 @@ while(script_live):
         s0.setTime(time_s+dt)
         ikSolver.track(s0)
         if visualize:
-            model.getVisualizer().show(s0)
+            model.getVisualizer().report(s0)
         model.realizeReport(s0)
         if real_time: # The previous kinematics are pulled here and can be used to implement any custom real-time applications
             rowind = ikReporter.getTable().getRowIndexBeforeTime((t+1)*dt) # most recent index in kinematics table
