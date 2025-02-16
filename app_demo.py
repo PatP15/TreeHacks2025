@@ -117,7 +117,7 @@ def ppg_data():
 @app.route('/run_script')
 def run_script():
     """ Runs a background Python script when AFib is detected. """
-    subprocess.Popen(["python3", "/mnt/data/test_guardian.py"])
+    subprocess.Popen(["python3", "test_guardian.py"])
     return jsonify({"status": "Script triggered"})
 
 ##########################################
