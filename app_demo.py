@@ -18,24 +18,25 @@ app = Flask(__name__)
 ##########################################
 # 2) VIDEO STREAMING SETUP (Using Video Files)
 ##########################################
-video_camera_path = "/mnt/data/camera_feed.mp4"
-video_realtimekin_path = "/mnt/data/realtimekin.mp4"
+video_camera_path = "demo_vids/camera.mp4"
+video_realtimekin_path = "demo_vids/camera.mp4"
 
 cap_camera = cv2.VideoCapture(video_camera_path)
 cap_realtimekin = cv2.VideoCapture(video_realtimekin_path)
 
 def gen_frames(cap):
-    """ Reads video frames and loops when the video ends. """
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    if fps <= 0:
+        fps = 30
     while True:
         success, frame = cap.read()
         if not success:
-            cap.set(cv2.CAP_PROP_POS_FRAMES, 0)  # Restart video if at the end
+            cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
             continue
-
+        cv2.waitKey(int(1000 // fps))
         ret, buffer = cv2.imencode('.jpg', frame)
         if not ret:
             continue
-
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
 
@@ -98,7 +99,7 @@ def process_ppg_data(file_path):
 def ppg_data():
     """ Returns either Healthy or AFib PPG data based on request. """
     file_type = request.args.get("type", "healthy")
-    file_path = "/mnt/data/regular_2.csv" if file_type == "healthy" else "/mnt/data/afib_2.csv"
+    file_path = "regular_2.csv" if file_type == "healthy" else "afib_2.csv"
     ppg_df = process_ppg_data(file_path)
     return jsonify(ppg_df["ppg_signal"].tolist())
 

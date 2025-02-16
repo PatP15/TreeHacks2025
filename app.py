@@ -71,6 +71,11 @@ def video_feed():
     return Response(gen_frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
+@app.route('/realtimekin_feed')
+def realtimekin_feed():
+    """ Streams the RealTime Kin feed (video file). """
+    return Response(gen_frames(),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 import random
 
