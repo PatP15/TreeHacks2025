@@ -42,7 +42,7 @@ try:
     repo_name = repo_url.split('/')[-1].replace('.git', '')
 
     # Navigate to the repository directory and run the Python script
-    output = instance.bash(command=f"cd {repo_name} && python3 {script_name}")
+    output = instance.bash(command=f"cd {repo_name} && pip install -r requirements.txt && python3 {script_name}")
     print(f"Executed script: {script_name} in {repo_name}")
     print(output)
 
