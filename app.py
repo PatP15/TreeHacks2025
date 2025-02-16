@@ -19,8 +19,7 @@ app = Flask(__name__)
 ##########################################
 # 3) CAMERA SETUP
 ##########################################
-cap = cv2.VideoCapture("v4l2src device=/dev/video0 ! video/x-raw,format=YUY2,width=640,height=480 ! videoconvert ! appsink", cv2.CAP_GSTREAMER)
-
+cap = cv2.VideoCapture(0)
 if not cap.isOpened():
     print("Error: Cannot open camera.")
     exit(1)
