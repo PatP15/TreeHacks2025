@@ -24,6 +24,11 @@
           <div class="card-body">
             <canvas id="ppgChart"></canvas>
           </div>
+          <!-- Alert Button -->
+          <div class="text-center mt-3">
+            <button onclick="togglePpgData()" class="btn btn-danger">Trigger AFib Alert</button>
+          </div>
+
         </div>
 
       </div>
@@ -121,23 +126,25 @@
   let ppgData = [];
   let ppgIndex = 0;
   let loopPpg = [];
+  let currentCsv = "healthy";  // Default dataset
+  let afibMode = false;  // Track AFib state
   const PPG_DISPLAY_SIZE = 150;
   const PPG_UPDATE_RATE = 30;
 
   // Load PPG data from API
   async function loadPpgData() {
-    const response = await fetch("/ppg_data");
+    const response = await fetch(`/ppg_data?type=${currentCsv}`);
     const data = await response.json();
     loopPpg = data;
   }
 
-  // Update PPG chart (Sliding effect)
+  // Update PPG chart with sliding effect
   function updatePpgChart(chart) {
     if (loopPpg.length === 0) return;
 
     ppgData.push(loopPpg[ppgIndex]);
     if (ppgData.length > PPG_DISPLAY_SIZE) {
-      ppgData.shift();
+      ppgData.shift();  // Remove the oldest point
     }
 
     chart.data.labels.push("");
@@ -154,6 +161,7 @@
   // Initialize PPG chart
   async function initPpgChart() {
     await loadPpgData();
+    
     const ctx = document.getElementById('ppgChart').getContext('2d');
     const ppgChart = new Chart(ctx, {
       type: 'line',
@@ -183,7 +191,39 @@
     setInterval(() => updatePpgChart(ppgChart), PPG_UPDATE_RATE);
   }
 
-  // Function to ensure dots exist
+  // Function to swap between Healthy & AFib data
+  async function togglePpgData() {
+    afibMode = !afibMode;
+    currentCsv = afibMode ? "afib" : "healthy";
+    await loadPpgData();
+
+    const chart = Chart.getChart("ppgChart");
+    chart.data.datasets[0].borderColor = afibMode ? "rgb(255, 0, 0)" : "rgb(0, 255, 0)";
+    chart.data.datasets[0].backgroundColor = afibMode ? "rgba(255, 0, 0, 0.2)" : "rgba(0, 255, 0, 0.2)";
+    chart.update();
+
+    if (afibMode) {
+      setTimeout(() => {
+        alert("🚨 Anomaly Detected! AFib detected! Scapy Guardian to the rescue! 🚨");
+        fetch("/run_script")
+          .then(resp => console.log("Python script triggered"))
+          .catch(err => console.error("Error triggering Python script:", err));
+      }, 5000);
+    }
+  }
+
+  // Fetch caption from /get_caption
+  function fetchCaption() {
+    fetch("/get_caption")
+      .then(resp => resp.json())
+      .then(data => {
+        const captionElem = document.getElementById('captionPlatoon');
+        if (captionElem) captionElem.innerText = data.caption;
+      })
+      .catch(err => console.log("Error fetching caption:", err));
+  }
+
+  // Ensure map dots exist
   function ensureDotExists(dotId, color, size = 12) {
     let dot = document.getElementById(dotId);
     if (!dot) {
@@ -194,7 +234,7 @@
       dot.style.width = `${size}px`;
       dot.style.height = `${size}px`;
       dot.style.borderRadius = "50%";
-      dot.style.zIndex = "10";  // Ensure dots are on top
+      dot.style.zIndex = "10";
       dot.style.backgroundColor = color;
       dot.style.boxShadow = `0 0 10px ${color}`;
       document.getElementById('map-container').appendChild(dot);
@@ -233,17 +273,6 @@
       .catch(err => console.log("Error fetching location:", err));
   }
 
-  // Fetch caption from /get_caption
-  function fetchCaption() {
-    fetch("/get_caption")
-      .then(resp => resp.json())
-      .then(data => {
-        const captionElem = document.getElementById('captionPlatoon');
-        if (captionElem) captionElem.innerText = data.caption;
-      })
-      .catch(err => console.log("Error fetching caption:", err));
-  }
-
   // Unified update function
   function updateDashboard() {
     fetchCaption();
@@ -256,6 +285,8 @@
   });
 
 </script>
+
+
 
 
 

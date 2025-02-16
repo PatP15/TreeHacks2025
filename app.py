@@ -203,14 +203,23 @@ def process_ppg_data(file_path):
 
     return ppg_df
 
+import subprocess
+
 @app.route('/ppg_data')
 def ppg_data():
-    """Returns PPG heartbeat signal for real-time display."""
-    file_path = "regular_2.csv"
-
+    """ Returns either healthy or AFib PPG data based on request. """
+    file_type = request.args.get("type", "healthy")  # Default to healthy
+    file_path = "regular_2.csv" if file_type == "healthy" else "afib_2.csv"
+    
+    # Load the selected PPG dataset
     ppg_df = process_ppg_data(file_path)
     return jsonify(ppg_df["ppg_signal"].tolist())
 
+@app.route('/run_script')
+def run_script():
+    """ Runs a background Python script when AFib is detected. """
+    subprocess.Popen(["python3", "test_guardian.py"])
+    return jsonify({"status": "Script triggered"})
 
 @app.route('/chatbot', methods=['POST'])
 def chatbot():
