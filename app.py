@@ -160,13 +160,54 @@ import random
 @app.route('/location.json')
 def location_json():
     """
-    Returns a simulated user position in the form of percentages.
-    (0,0) is top-left of the map, (1,1) is bottom-right.
+    Returns a simulated user position in the form of percentages (0-1 range).
     """
     return jsonify({
-        "x": round(random.uniform(0.2, 0.8), 2),  # Random position for demo
-        "y": round(random.uniform(0.2, 0.8), 2)
+        "x": round(random.uniform(0.1, 0.9), 2),  # Avoid going too close to edges
+        "y": round(random.uniform(0.1, 0.9), 2)
     })
+
+import numpy as np
+from scipy.signal import find_peaks
+import pandas as pd
+
+def process_ppg_data(file_path):
+    """
+    Processes the original CSV file to extract and normalize the PPG (IR) signal.
+
+    Args:
+        file_path (str): Path to the CSV file.
+
+    Returns:
+        pd.DataFrame: Processed DataFrame with 'timestamp' and 'ppg_signal' (normalized).
+    """
+    import pandas as pd
+
+    # Load CSV file
+    df = pd.read_csv(file_path)
+
+    # Extract IR signal (assuming it's the best for PPG analysis)
+    ppg_signal = df["IR"].values
+
+    # Normalize PPG signal between 0 and 1 for smoother visualization
+    ppg_signal_normalized = (ppg_signal - ppg_signal.min()) / (ppg_signal.max() - ppg_signal.min())
+
+    # Create a cleaned DataFrame
+    ppg_df = pd.DataFrame({
+        "timestamp": df["sample_index"].values,  # Keeping original timestamps
+        "ppg_signal": ppg_signal_normalized  # Normalized PPG signal
+    })
+
+    return ppg_df
+
+@app.route('/ppg_data')
+def ppg_data():
+    """Returns PPG heartbeat signal for real-time display."""
+    file_path = "regular_2.csv"
+
+    ppg_df = process_ppg_data(file_path)
+    return jsonify(ppg_df["ppg_signal"].tolist())
+
 
 @app.route('/chatbot', methods=['POST'])
 def chatbot():

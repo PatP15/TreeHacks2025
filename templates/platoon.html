@@ -5,81 +5,164 @@
 <div class="main-section" style="background-color: #e3f2e3;">
   <div class="container-fluid py-3">
     <h2 class="mb-3">User Overview</h2>
-    <div class="row mb-4">
-      <!-- Left: RealTime Kin -->
-      <div class="col-md-6">
-        <div class="card h-100">
+    <div class="row">
+      
+      <!-- LEFT COLUMN: RealTime Kin + PPG Heartbeat -->
+      <div class="col-md-6 d-flex flex-column">
+        
+        <!-- RealTime Kin -->
+        <div class="card flex-grow-1">
           <div class="card-header">RealTime Kin</div>
           <div class="card-body text-center">
             <p>Placeholder for Kin streaming feed</p>
           </div>
         </div>
-      </div>
-      
-      <!-- Right: MAP STREAMING (with pulsing dot) -->
-      <div class="col-md-6">
-        <div class="card h-100">
-          <div class="card-header">Map Streaming</div>
-          <div class="card-body position-relative" style="text-align: center;">
-            <!-- Load PNG map -->
-            <img id="map-image" src="{{ url_for('static', filename='map.png') }}" class="img-fluid" style="max-width: 100%;" />
 
-            <!-- Pulsing dot (will be positioned dynamically) -->
-            <div id="pulsing-dot"></div>
+        <!-- PPG Heartbeat Signal -->
+        <div class="card mt-3">
+          <div class="card-header">Heartbeat Signal (PPG)</div>
+          <div class="card-body">
+            <canvas id="ppgChart"></canvas>
           </div>
         </div>
-      </div>
-    </div><!-- end .row -->
 
-    <!-- VLM CAMERA + CAPTION (macro) -->
-    <div class="row">
-      <div class="col-12">
+      </div>
+
+      <!-- RIGHT COLUMN: VLM + Map -->
+      <div class="col-md-6 d-flex flex-column">
+        
+        <!-- VLM CAMERA + CAPTION -->
         <div class="card">
           <div class="card-header">VLM Camera + Caption</div>
           <div class="card-body">
             {{ macros.camera_and_caption(width="100%", max_height="250px", caption_id="captionPlatoon") }}
           </div>
         </div>
+
+        <!-- MAP STREAMING -->
+        <div class="card mt-3">
+          <div class="card-header">Map Streaming</div>
+          <div class="card-body position-relative text-center">
+            <div id="map-container" style="display: inline-block; position: relative;">
+              <img id="map-image" src="{{ url_for('static', filename='map.png') }}" class="img-fluid" style="width: 80%;" />
+              <div id="pulsing-dot"></div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
-
-  </div><!-- end .container-fluid -->
-</div><!-- end .main-section -->
+  </div>
+</div>
 
 {% endblock %}
 
 {% block scripts %}
 <style>
-  /* Pulsing dot for location tracking */
+  /* Fix caption box height */
+  #captionPlatoon {
+    min-height: 5em;
+    max-height: 5em;
+    overflow: hidden;
+    white-space: normal;
+  }
+
+  /* PPG Graph Styling */
+  .chart-container {
+    position: relative;
+    height: 200px;
+  }
+
+  /* Pulsing Dot */
   #pulsing-dot {
     position: absolute;
-    width: 20px;
-    height: 20px;
+    width: 14px;
+    height: 14px;
     background-color: red;
     border-radius: 50%;
     box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
     animation: pulse 1.5s infinite;
-    transform: translate(-50%, -50%); /* Centering */
+    transform: translate(-50%, -50%);
   }
 
   @keyframes pulse {
-    0% {
-      transform: translate(-50%, -50%) scale(1);
-      opacity: 1;
-    }
-    50% {
-      transform: translate(-50%, -50%) scale(1.3);
-      opacity: 0.6;
-    }
-    100% {
-      transform: translate(-50%, -50%) scale(1);
-      opacity: 1;
-    }
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.6; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
   }
 </style>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
-  // Function to fetch caption from /get_caption
+  let ppgData = [];
+  let ppgIndex = 0;
+  let loopPpg = [];
+  const PPG_DISPLAY_SIZE = 150;  // Number of visible points
+  const PPG_UPDATE_RATE = 30;  // Update speed (~60-90 BPM)
+
+  // Load PPG data from API
+  async function loadPpgData() {
+    const response = await fetch("/ppg_data");
+    const data = await response.json();
+    loopPpg = data;
+  }
+
+  // Update PPG chart (Sliding effect)
+  function updatePpgChart(chart) {
+    if (loopPpg.length === 0) return;
+
+    // Add new value & remove oldest value to create smooth scrolling
+    ppgData.push(loopPpg[ppgIndex]);
+    if (ppgData.length > PPG_DISPLAY_SIZE) {
+      ppgData.shift();  // Remove the oldest point
+    }
+
+    // Keep labels aligned
+    chart.data.labels.push("");  
+    if (chart.data.labels.length > PPG_DISPLAY_SIZE) {
+      chart.data.labels.shift();
+    }
+
+    chart.data.datasets[0].data = [...ppgData];  // Update dataset
+    chart.update();
+
+    ppgIndex = (ppgIndex + 1) % loopPpg.length;  // Loop through PPG data
+  }
+
+  // Initialize PPG chart
+  async function initPpgChart() {
+    await loadPpgData();
+
+    const ctx = document.getElementById('ppgChart').getContext('2d');
+    const ppgChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: Array(PPG_DISPLAY_SIZE).fill(""),
+        datasets: [{
+          label: "PPG Signal",
+          borderColor: "rgb(0, 255, 0)",  // Hospital-style green
+          borderWidth: 2,
+          backgroundColor: "rgba(0, 255, 0, 0.2)",
+          data: [],
+          pointRadius: 0,  // No circles
+          tension: 0.2  // Smooth curve effect
+        }]
+      },
+      options: {
+        responsive: true,
+        animation: false,
+        scales: {
+          y: { min: 0, max: 1, ticks: { stepSize: 0.2, color: "#00ff00" } },
+          x: { display: false }  // Hide X-axis labels for smooth effect
+        }
+      }
+    });
+
+    setInterval(() => updatePpgChart(ppgChart), PPG_UPDATE_RATE);
+  }
+
+  // Fetch caption from /get_caption
   function fetchCaption() {
     fetch("/get_caption")
       .then(resp => resp.json())
@@ -90,7 +173,7 @@
       .catch(err => console.log("Error fetching caption:", err));
   }
 
-  // Function to update pulsing dot position
+  // Fetch location updates for pulsing dot
   function updateLocation() {
     fetch("/location.json")
       .then(resp => resp.json())
@@ -99,10 +182,12 @@
         const mapImage = document.getElementById('map-image');
 
         if (dot && mapImage) {
-          // Convert percentages into pixel positions
           const mapRect = mapImage.getBoundingClientRect();
-          const x = mapRect.left + mapRect.width * data.x;
-          const y = mapRect.top + mapRect.height * data.y;
+          let x = mapRect.width * data.x;
+          let y = mapRect.height * data.y;
+          x = Math.max(5, Math.min(x, mapRect.width - 5));
+          y = Math.max(5, Math.min(y, mapRect.height - 5));
+
           dot.style.left = `${x}px`;
           dot.style.top = `${y}px`;
         }
@@ -110,10 +195,20 @@
       .catch(err => console.log("Error fetching location:", err));
   }
 
-  // Polling intervals
-  setInterval(() => {
+  // Unified update function (ensures all updates run together)
+  function updateDashboard() {
     fetchCaption();
     updateLocation();
-  }, 4000);
+  }
+
+  // Initialize everything
+  document.addEventListener("DOMContentLoaded", function () {
+    initPpgChart();
+    setInterval(updateDashboard, 4000);  // Runs captions & location updates every 4 seconds
+  });
+
 </script>
+
+
+
 {% endblock %}
