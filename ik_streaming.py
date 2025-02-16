@@ -90,7 +90,9 @@ while(script_live):
 
     # Initialize simulation
     quatTable = osim.TimeSeriesTableQuaternion(sto_filename)
-
+    init_state = model.initSystem()
+    mRefs = osim.MarkersReference()
+    coordinateReferences = osim.SimTKArrayCoordinateReference()
     # new version
     orientationsData = osim.OpenSenseUtilities.convertQuaternionsToRotations(quatTable)
     oRefs = osim.BufferedOrientationsReference()
@@ -102,9 +104,7 @@ while(script_live):
 
     ikSolver = osim.InverseKinematicsSolver(model, mRefs, oRefs, coordinateReferences, constraint_var)
 
-    init_state = model.initSystem()
-    mRefs = osim.MarkersReference()
-    coordinateReferences = osim.SimTKArrayCoordinateReference()
+
     if visualize:
         model.setUseVisualizer(True)
     model.initSystem()
