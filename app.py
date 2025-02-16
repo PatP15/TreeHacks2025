@@ -3,8 +3,8 @@ import cv2
 import time
 import threading
 from flask import Flask, render_template, request, jsonify, Response, redirect, url_for
-import torch
-from transformers import AutoProcessor, AutoModelForVision2Seq, BitsAndBytesConfig
+# import torch
+# from transformers import AutoProcessor, AutoModelForVision2Seq, BitsAndBytesConfig
 from PIL import Image
 from datetime import datetime
 
@@ -15,20 +15,6 @@ from datetime import datetime
 ##########################################
 app = Flask(__name__)
 
-##########################################
-# 2) LOAD SmolVLM MODEL
-##########################################
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-
-processor = AutoProcessor.from_pretrained("HuggingFaceTB/SmolVLM-256M-Instruct")
-quantization_config = BitsAndBytesConfig(load_in_8bit=True)
-model = AutoModelForVision2Seq.from_pretrained(
-    "HuggingFaceTB/SmolVLM-Instruct",
-    quantization_config=quantization_config,
-).to(DEVICE)
-model.eval()
-
-print(f"Loaded SmolVLM on device: {DEVICE}")
 
 ##########################################
 # 3) CAMERA SETUP
@@ -38,70 +24,6 @@ if not cap.isOpened():
     print("Error: Cannot open camera.")
     exit(1)
 
-# Global variables for skipping frames while busy
-latest_frame = None
-latest_frame_id = 0
-processing_frame_id = 0
-current_caption = "Initializing..."
-model_busy = False
-
-##########################################
-# 4) SMOLVLM CAPTION FUNCTION
-##########################################
-def generate_caption(opencv_frame):
-    """
-    Convert an OpenCV BGR frame to a PIL image, run SmolVLM,
-    and return the generated text.
-    """
-    rgb = cv2.cvtColor(opencv_frame, cv2.COLOR_BGR2RGB)
-    pil_img = Image.fromarray(rgb)
-
-    messages = [
-        {
-            "role": "user",
-            "content": [
-                {"type": "image"},
-                {"type": "text", "text": "Can you describe this image?"}
-            ]
-        }
-    ]
-    prompt = processor.apply_chat_template(messages, add_generation_prompt=True)
-    inputs = processor(text=prompt, images=[pil_img], return_tensors="pt").to(DEVICE)
-
-    with torch.no_grad():
-        generated_ids = model.generate(**inputs, max_new_tokens=50)
-
-    generated_texts = processor.batch_decode(generated_ids, skip_special_tokens=True)
-    return generated_texts[0] if generated_texts else "No caption generated."
-
-##########################################
-# 5) BACKGROUND CAPTION THREAD
-##########################################
-def caption_loop():
-    global latest_frame_id, processing_frame_id, latest_frame
-    global model_busy, current_caption
-
-    while True:
-        if (latest_frame_id != processing_frame_id) and (not model_busy):
-            model_busy = True
-            frame_to_process = latest_frame.copy()
-
-            caption = generate_caption(frame_to_process)
-
-            # remove anything before Assistant: in the caption
-            caption = caption.split("Assistant: ")[1]
-            
-            # and remove everything after the final period out of the paragraph
-            caption = caption.split(".")[:-1]
-            caption = ".".join(caption) + "."
-
-            current_caption = caption
-
-            
-            processing_frame_id = latest_frame_id
-            model_busy = False
-
-        # time.sleep(0.1)
 
 ##########################################
 # 6) MJPEG STREAM GENERATOR
@@ -118,9 +40,6 @@ def gen_frames():
         if not success:
             break
         frame = cv2.flip(frame, 1)
-
-        latest_frame = frame
-        latest_frame_id += 1
 
         ret, buffer = cv2.imencode('.jpg', frame)
         if not ret:
@@ -152,10 +71,6 @@ def video_feed():
     return Response(gen_frames(),
                     mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/get_caption')
-def get_caption():
-    """ Returns the latest SmolVLM caption. """
-    return jsonify({"caption": current_caption})
 
 import random
 
@@ -236,5 +151,5 @@ def chatbot():
 # 8) START THE APP & THREAD
 ##########################################
 if __name__ == '__main__':
-    threading.Thread(target=caption_loop, daemon=True).start()
+    # threading.Thread(target=caption_loop, daemon=True).start()
     app.run(host='0.0.0.0', port=5001, debug=True)
