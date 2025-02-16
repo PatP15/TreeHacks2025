@@ -4,9 +4,11 @@ import time
 import threading
 from flask import Flask, render_template, request, jsonify, Response, redirect, url_for
 import torch
-from transformers import AutoProcessor, AutoModelForVision2Seq
+from transformers import AutoProcessor, AutoModelForVision2Seq, BitsAndBytesConfig
 from PIL import Image
 from datetime import datetime
+
+
 
 ##########################################
 # 1) INITIALIZE FLASK
@@ -16,13 +18,13 @@ app = Flask(__name__)
 ##########################################
 # 2) LOAD SmolVLM MODEL
 ##########################################
-DEVICE = "cuda" if torch.cuda.is_available() else "mps"
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 processor = AutoProcessor.from_pretrained("HuggingFaceTB/SmolVLM-256M-Instruct")
+quantization_config = BitsAndBytesConfig(load_in_8bit=True)
 model = AutoModelForVision2Seq.from_pretrained(
-    "HuggingFaceTB/SmolVLM-256M-Instruct",
-    torch_dtype=torch.bfloat16,
-    _attn_implementation="flash_attention_2" if DEVICE == "cuda" else "eager",
+    "HuggingFaceTB/SmolVLM-Instruct",
+    quantization_config=quantization_config,
 ).to(DEVICE)
 model.eval()
 
