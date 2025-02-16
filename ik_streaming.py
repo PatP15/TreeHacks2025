@@ -102,12 +102,11 @@ while(script_live):
     rowVec0 = osim.RowVectorRotation(rowVecView)
     oRefs.putValues(0, rowVec0)
 
-    ikSolver = osim.InverseKinematicsSolver(model, mRefs, oRefs, coordinateReferences, constraint_var)
-
 
     if visualize:
         model.setUseVisualizer(True)
     model.initSystem()
+    ikSolver = osim.InverseKinematicsSolver(model, mRefs, oRefs, coordinateReferences, constraint_var)
     s0 = init_state
     ikSolver.setAccuracy = accuracy
     s0.setTime(0.)

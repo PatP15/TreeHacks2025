@@ -31,17 +31,6 @@
     if(!userInput) return;
     appendChatMessage('You', userInput);
 
-    fetch('/chatbot', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ message: userInput })
-    })
-    .then(resp => resp.json())
-    .then(data => {
-      appendChatMessage('Server', data.response);
-    })
-    .catch(err => console.error('Chat error:', err));
-
     document.getElementById('userMessage').value = '';
   });
 

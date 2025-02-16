@@ -57,16 +57,43 @@ try:
 
     page = browser.new_page()
     page.goto("localhost:5001")
+
+
     # Define the prompt for the Anthropic model
     prompt = """
-    You are an AI assistant tasked with interacting with the web application hosted at http://localhost:8000.
-    Your objectives are:
-    1. Navigate through the website to understand its structure.
-    2. Identify and extract key information presented on the site.
-    3. Perform any available actions or form submissions to test functionality.
-    4. Provide a summary of the site's features and any recommendations for improvement.
+    You are an AI assistant tasked with interacting with the web application that monitors a persons health 
+    through the dashboard. Your name is Capy Guardian (like a guardian angel). Your goal is to evaluate what is happening to the person and provide a write up 
+    to the user. Here are the steps you should follow:
 
-    Please proceed step by step, describing your actions and observations.
+    Take multiple pictures of what you see on the dashboard and describe the different sections of the website.
+    From teh camera, try to determine if the person is in a safe environment and if there are any signs of distress.
+    From the heartbeat signal, try to determine if the person is in a healthy state or if there are any abnormalities.
+    From the map streaming, the user is the green dot and the red dots are other people. Try to determine if the person is in a safe location.
+    The real-time kin is a video feed of the person's joint angles. Try to determine if the person is moving normally or if there are any abnormalities.
+
+    Here is a brief description of the different sections of the website:
+    1. Dashboard View:
+   - RealTime Kin: Shows real-time video/image feed
+   - Chest Camera: Secondary camera view with caption capabilities
+   - Map Streaming: Displays location data with what appears to be a facility map
+   - Heartbeat Signal (PPG): Presumably for monitoring vital signs
+
+    2. Logs Section:
+    - Contains "Capy Guardian Logs"
+    - Has a text input field for logging messages
+    - Includes a "Send" button for submitting log entries
+
+    Please proceed step by step, describing your actions and observations. Once you have gathered all the necessary information, provide a summary of the person's health status
+    by submitting a write-up to the user through the "Send" button in the Logs section.
+    Also determine if the person would require any immediate assistance or medical attention.
+    If so, make it very clear in your write-up.
+
+    Specificaaly look at the video if it seems it is persepctive from the ground then person may have fallen.
+    The heartbeat signal is red if there is afib.
+
+    Do not ask for any additional information from the user. Use only the information available on the website.
+
+    Do not close the page or the browser. You can interact with the website as needed.
     """
 
     # Use the Anthropic model to interact with the website
@@ -83,6 +110,7 @@ try:
     print(response.output)
 
 finally:
+    print("Stopping the instance...")
     # Stop the instance to free up resources
-    instance.stop()
-    print("Instance stopped.")
+    # instance.stop()
+    # print("Instance stopped.")
